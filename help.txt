@@ -1,0 +1,67 @@
+George@DESKTOP-6D9TB42 MINGW64 ~
+$ pwd -W
+C:/Users/George
+
+George@DESKTOP-6D9TB42 MINGW64 ~
+$ cd PycharmProjects/amazonjobs/gitrepo/
+
+George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo
+$ git init
+Initialized empty Git repository in C:/Users/George/PycharmProjects/amazonjobs/gitrepo/.git/
+
+George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
+$ git status
+
+George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
+$ git add .
+
+https://github.com/awsdatascience/amazonjobs.git
+
+
+-- Get latest version from remote repo, before making any changes in local repo. Else use 'git fetch --all'.
+> git pull origin master
+
+-- Force replace local repo with remote repo.
+> git fetch --all
+> git reset --hard origin/master
+
+-- Commit changes and push from local to remote origin.
+> git add .
+> git commit -m 'Message..'
+> git push origin master
+-- u/p CocoonSolutions/12345aris
+
+-- Useful commands.
+> git log
+-- get last 2 commits
+> git log -n 2
+-- get differences between working and staged
+> git diff help/git.txt
+> git status
+> clear
+> git config --global user.name "you"
+> git config --global user.email "you@yourserver.org"
+> git remote
+> git branch
+> git ls-files
+-- list unstaged files in local repo.
+> git clean -n
+-- delete unstaged files in local repo.
+> git clean -f
+-- list files in local (only the committed ones).
+> git ls-tree --full-tree -r HEAD
+
+-- To remove all commits/files from a git repo.
+> rm -r .git
+-- Apply 'yes' every time.
+> git init
+> git remote add origin <git://repo.git>
+> git add <files>
+> git commit -m 'Initial commit'
+> git push -f origin master
+
+-- To allow push large files
+> git config http.postBuffer 524288000
+
+-- Unstage all staged files
+> git reset
