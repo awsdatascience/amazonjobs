@@ -63,3 +63,6 @@ $ git push -f remote master
 
 -- Unstage all staged files
 > git reset
+
+George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
+$ git diff master origin/master
