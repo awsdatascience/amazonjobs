@@ -9,6 +9,17 @@ George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo
 $ git init
 Initialized empty Git repository in C:/Users/George/PycharmProjects/amazonjobs/gitrepo/.git/
 
+> git config --global user.name "you"
+> git config --global user.email "you@yourserver.org"
+
+$ git remote add origin https://github.com/awsdatascience/amazonjobs.git
+
+$ git remote -v
+origin  https://github.com/awsdatascience/amazonjobs.git (fetch)
+origin  https://github.com/awsdatascience/amazonjobs.git (push)
+
+> git pull origin master
+
 George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
 $ git status
 
