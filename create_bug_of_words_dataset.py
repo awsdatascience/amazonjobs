@@ -2,13 +2,19 @@
 This module gets amazonjobs data from a local postgres database
 and creates a bug of words.
 
-sys.path.extend([
-     'C:\\Users\\George\\PycharmProjects\\amazonjobs'
-    ,'C:/Users/George/PycharmProjects/amazonjobs'])
-PyDev console: starting.
 Python 3.7.1 (default, Oct 23 2018, 22:56:47) [MSC v.1912 64 bit (AMD64)] on win32
+
+import sys
+sys.path.extend(
+    [
+     ''
+     ,'C:\\Users\\vn689xm\\AppData\\Local\\conda\\conda\\envs\\amazonjobs\\python37.zip'
+     ,'C:\\Users\\vn689xm\\AppData\\Local\\conda\\conda\\envs\\amazonjobs\\DLLs'
+     ,'C:\\Users\\vn689xm\\AppData\\Local\\conda\\conda\\envs\\amazonjobs\\lib'
+     ,'C:\\Users\\vn689xm\\AppData\\Local\\conda\\conda\\envs\\amazonjobs'
+     ,'C:\\Users\\vn689xm\\AppData\\Local\\conda\\conda\\envs\\amazonjobs\\lib\\site-packages'
+     ])
 '''
-import json
 import re
 from datetime import datetime
 import operator
@@ -22,6 +28,25 @@ import psycopg2
 
 QUERY = """select * from amazon.amazonjobs_2;"""
 
+WORDS_EXCLUDED = pd.DataFrame([
+        {'column_name':'listings'
+         ,'words':
+             ["splash"
+              ,"type"
+              ,"qualifications"
+              ,"elements"
+              ,"back"
+              ,"br"
+              ]
+             },
+        {'column_name':'role_description'
+         ,'words':[]
+             },
+        {'column_name':'title'
+         ,'words':[]
+             }
+        ])
+
 
 def open_database_connection(database):
     '''
@@ -31,7 +56,7 @@ def open_database_connection(database):
     '''
     conn = None
     if database == 'postgres':
-        dbname, user, host, password = 'postgres', 'postgres', 'localhost', 'postgres'
+        dbname, user, host, password = 'postgres', 'postgres', 'localhost', '123'
     else:
         print("No database selected")
     try:
@@ -78,39 +103,31 @@ def fetch_results_to_dataframe(conn, query):
     return to_df
 
 
-def add_qualifications_column(row, column):
-    '''
-    Not sure what this does as it is not used anywhere!
-    :param row:
-    :param column:
-    :return:
-    '''
-    to_list = json.loads(row['listings'])
-    to_string = to_list[column]['elements'][0]
-    return to_string
-
-
-def create_bag_of_words(dataset, column):
+def create_bag_of_words(dataset, column, max_features):
     '''
     Create bag of words
     :param dataset: dataframe
     :param column: dataframe column to be analyzed
     :return: bag of words as dataframe
     '''
+    if WORDS_EXCLUDED.loc[
+            WORDS_EXCLUDED['column_name'] == column, ['words']].empty:
+        total_words_excluded = stopwords.words('english')
+    else:
+        total_words_excluded = stopwords.words('english') + WORDS_EXCLUDED.loc[
+                WORDS_EXCLUDED['column_name'] == column, ['words']
+                ].values.tolist()[0][0]       
     corpus = []
     for i in range(0, len(dataset)):
-        job_description = re.sub('[^a-zA-Z]', ' ', dataset[column][i])
-        job_description = job_description.lower()
-        job_description = job_description.split()
-        job_description = [
-            word for word in job_description if not word in set(
-                stopwords.words('english')
-            )
-        ]
-        job_description = ' '.join(job_description)
-        corpus.append(job_description)
+        row = re.sub('[^a-zA-Z]', ' ', dataset[column][i])
+        row = row.lower()
+        row = row.split()
+        row = [word for word in row if not word in set(total_words_excluded)]
+        row = ' '.join(row)
+        corpus.append(row)
 
-    count_vectorizer = CountVectorizer(max_features=100)
+    # excludes sinlge letter words as 'R' 
+    count_vectorizer = CountVectorizer(max_features=max_features)
     to_array = count_vectorizer.fit_transform(corpus).toarray()
     columns = count_vectorizer.vocabulary_
 
@@ -130,7 +147,7 @@ def main():
     conn = open_database_connection('postgres')
     amazonjobs_df = fetch_results_to_dataframe(conn, QUERY)
     conn.close()
-    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings')
+    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings', 1000)
     print(bag_of_words.head(20))
     print(">>>>>> Executed in %s seconds" % (datetime.now() - script_start_time))
 
