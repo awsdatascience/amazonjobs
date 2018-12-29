@@ -16,6 +16,7 @@ sys.path.extend(
      ])
 '''
 import re
+import os
 from datetime import datetime
 import operator
 import numpy as np
@@ -136,6 +137,10 @@ def create_bag_of_words(dataset, column, max_features):
     word_freq = pd.DataFrame(to_array, columns=sorted_columns)
 
     dataset_joined = dataset.join(word_freq)
+    
+    dataset_joined.to_csv(f'BOW_{column}_{max_features}.tsv'
+                          , sep='\t', encoding='utf-8')
+    print('>>>>>> Result exported: ' + f'{os.getcwd()}\BOW_{column}_{max_features}.tsv')
     return dataset_joined
 
 
@@ -147,7 +152,7 @@ def main():
     conn = open_database_connection('postgres')
     amazonjobs_df = fetch_results_to_dataframe(conn, QUERY)
     conn.close()
-    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings', 1000)
+    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings', 10)
     print(bag_of_words.head(20))
     print(">>>>>> Executed in %s seconds" % (datetime.now() - script_start_time))
 
