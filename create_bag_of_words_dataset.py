@@ -38,6 +38,10 @@ WORDS_EXCLUDED = pd.DataFrame([
               ,"elements"
               ,"back"
               ,"br"
+              ,"preferred"
+              ,"years"
+              ,"ability"
+              ,"experience"
               ]
              },
         {'column_name':'role_description'
@@ -152,7 +156,7 @@ def main():
     conn = open_database_connection('postgres')
     amazonjobs_df = fetch_results_to_dataframe(conn, QUERY)
     conn.close()
-    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings', 10)
+    bag_of_words = create_bag_of_words(amazonjobs_df, 'title', 1000)
     print(bag_of_words.head(20))
     print(">>>>>> Executed in %s seconds" % (datetime.now() - script_start_time))
 
