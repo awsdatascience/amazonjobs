@@ -1,13 +1,14 @@
-George@DESKTOP-6D9TB42 MINGW64 ~
-$ pwd -W
-C:/Users/George
 
-George@DESKTOP-6D9TB42 MINGW64 ~
+Marina@DESKTOP-6D9TB42 MINGW64 ~
+$ pwd -W
+C:/Users/Marina
+
+Marina@DESKTOP-6D9TB42 MINGW64 ~
 $ cd PycharmProjects/amazonjobs/gitrepo/
 
-George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo
+Marina@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo
 $ git init
-Initialized empty Git repository in C:/Users/George/PycharmProjects/amazonjobs/gitrepo/.git/
+Initialized empty Git repository in C:/Users/Marina/PycharmProjects/amazonjobs/gitrepo/.git/
 
 > git config --global user.name "you"
 > git config --global user.email "you@yourserver.org"
@@ -20,13 +21,13 @@ origin  https://github.com/awsdatascience/amazonjobs.git (push)
 
 > git pull origin master
 
-George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
+Marina@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
 $ git status
 
-George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
+Marina@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
 $ git add .
 
-George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
+Marina@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
 $ git push -f remote master
 
 -- Get latest version from remote repo, before making any changes in local repo. Else use 'git fetch --all'.
@@ -75,7 +76,7 @@ $ git push -f remote master
 -- Unstage all staged files
 > git reset
 
-George@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
+Marina@DESKTOP-6D9TB42 MINGW64 ~/PycharmProjects/amazonjobs/gitrepo (master)
 $ git diff master origin/master
 
 -------------------------------------------------------
