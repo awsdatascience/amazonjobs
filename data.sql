@@ -33,6 +33,6 @@ as select
 	am.url,
 	am.company_intro,
 	am.role_description,
-	replace(am.listings, '\', ' back_splash ') listings
+	replace(am.listings, '\', ' back_slsh ') listings
 from amazon.amazonjobs am;
--- create table amazon.amazonjobs_2 as select am.job_id, am.title, am.department, am."location", am.to_date, am.to_timestamp, am.url, am.company_intro, am.role_description, replace(am.listings, '\', ' back_splash ') listings from amazon.amazonjobs am;
+-- create table amazon.amazonjobs_2 as select am.job_id, am.title, am.department, am."location", am.to_date, am.to_timestamp, am.url, am.company_intro, am.role_description, replace(am.listings, '\', ' back_slsh ') listings from amazon.amazonjobs am;
