@@ -1,9 +1,7 @@
 '''
 This module gets amazonjobs data from a local postgres database
 and creates a bug of words.
-
 Python 3.7.1 (default, Oct 23 2018, 22:56:47) [MSC v.1912 64 bit (AMD64)] on win32
-
 import sys
 sys.path.extend(
     [
@@ -22,6 +20,7 @@ import operator
 import numpy as np
 import pandas as pd
 import nltk
+
 nltk.download('stopwords')
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
@@ -29,28 +28,53 @@ import psycopg2
 
 QUERY = """select * from amazon.amazonjobs_2;"""
 
-WORDS_EXCLUDED = pd.DataFrame([
-        {'column_name':'listings'
-         ,'words':
-             ["splash"
-              ,"type"
-              ,"qualifications"
-              ,"elements"
-              ,"back"
-              ,"br"
-              ,"preferred"
-              ,"years"
-              ,"ability"
-              ,"experience"
-              ]
-             },
-        {'column_name':'role_description'
-         ,'words':[]
-             },
-        {'column_name':'title'
-         ,'words':[]
-             }
-        ])
+# USER SPECIFIED PARAMETERS / REQUIRES INPUT
+WORD_ACTIONS = pd.DataFrame([
+    {'column_name': 'listings'
+        , 'exclude_words': [
+        "slsh"
+        , "type"
+        , "qualifications"
+        , "elements"
+        , "back"
+        , "br"
+        , "preferred"
+        , "years"
+        , "ability"
+        , "experience"]
+        , 'include_only_words': [
+        "machinelearning"
+        , "datamodeling"
+        , "datawarehouse"
+        , "bigdata"
+        , "computerscience"
+        , "python"
+        , "java"
+        , "scala"
+        , "sql"
+        , "excel"
+        , "hadoop"
+        , "rtech"
+    ]
+        , 'replace_string': [
+        "machine learning"
+        , "data modeling"
+        , "data warehouse"
+        , "big data"
+        , "computer science"
+    ]
+     },
+    {'column_name': 'role_description'
+        , 'exclude_words': []
+        , 'include_only_words': []
+        , 'replace_string': []
+     },
+    {'column_name': 'title'
+        , 'exclude_words': []
+        , 'include_only_words': []
+        , 'replace_string': []
+     }
+])
 
 
 def open_database_connection(database):
@@ -61,7 +85,7 @@ def open_database_connection(database):
     '''
     conn = None
     if database == 'postgres':
-        dbname, user, host, password = 'postgres', 'postgres', 'localhost', '123'
+        dbname, user, host, password = 'postgres', 'postgres', 'localhost', 'postgres'
     else:
         print("No database selected")
     try:
@@ -108,26 +132,68 @@ def fetch_results_to_dataframe(conn, query):
     return to_df
 
 
-def create_bag_of_words(dataset, column, max_features):
+def create_bag_of_words(dataset, column, max_features, exclude):
     '''
     Create bag of words
     :param dataset: dataframe
     :param column: dataframe column to be analyzed
+    :param max_features: max columns of bag of words
+    :param exclude: if true excludes words specified in WORD_ACTIONS['exclude_words']
+        and if false includes only words specified in WORD_ACTIONS['includes_only_words']
     :return: bag of words as dataframe
     '''
-    if WORDS_EXCLUDED.loc[
-            WORDS_EXCLUDED['column_name'] == column, ['words']].empty:
-        total_words_excluded = stopwords.words('english')
-    else:
-        total_words_excluded = stopwords.words('english') + WORDS_EXCLUDED.loc[
-                WORDS_EXCLUDED['column_name'] == column, ['words']
-                ].values.tolist()[0][0]       
+
+    def apply_word_rules(list_of_words, exclude):
+        '''
+        Apply rules on list of words
+        :param list_of_words:
+        :param total_words_excluded:
+        :param exclude: same as in create_bag_of_words()
+        :return: list of words after rules applied
+        '''
+        list_of_words_rules_applied = list_of_words
+        if exclude:
+            if WORD_ACTIONS.loc[
+                WORD_ACTIONS['column_name'] == column, ['exclude_words']].empty:
+                pass
+            else:
+                words_excluded = WORD_ACTIONS.loc[WORD_ACTIONS['column_name'] == column, ['exclude_words']
+                ].values.tolist()[0][0]
+                list_of_words_rules_applied = [word for word in list_of_words if not word in set(words_excluded)]
+        else:
+            if WORD_ACTIONS.loc[
+                WORD_ACTIONS['column_name'] == column, ['include_only_words']].empty:
+                pass
+            else:
+                words_included = WORD_ACTIONS.loc[WORD_ACTIONS['column_name'] == column, ['include_only_words']
+                ].values.tolist()[0][0]
+                list_of_words_rules_applied = [word for word in list_of_words if word in set(words_included)]
+        return list_of_words_rules_applied
+
+    def replace_string(row):
+        string_replaced = row
+        if WORD_ACTIONS.loc[
+            WORD_ACTIONS['column_name'] == column, ['replace_string']].empty:
+            pass
+        else:
+            list_of_words_to_merge = WORD_ACTIONS.loc[
+                WORD_ACTIONS['column_name'] == column, ['replace_string']].values.tolist()[0][0]
+            for word in list_of_words_to_merge:
+                merged = word.replace(' ', '')
+                string_replaced = string_replaced.replace(word, merged)
+        return string_replaced
+
     corpus = []
     for i in range(0, len(dataset)):
+        # keeps only small and capital letters
         row = re.sub('[^a-zA-Z]', ' ', dataset[column][i])
         row = row.lower()
+        row = row.replace(' r ', ' rtech ')
+        # row = row.replace(' _string_ ', ' _newstring_ ')
+        row = replace_string(row)
         row = row.split()
-        row = [word for word in row if not word in set(total_words_excluded)]
+        row = [word for word in row if not word in set(stopwords.words('english'))]
+        row = apply_word_rules(row, exclude)
         row = ' '.join(row)
         corpus.append(row)
 
@@ -141,7 +207,7 @@ def create_bag_of_words(dataset, column, max_features):
     word_freq = pd.DataFrame(to_array, columns=sorted_columns)
 
     dataset_joined = dataset.join(word_freq)
-    
+
     dataset_joined.to_csv(f'BOW_{column}_{max_features}.tsv'
                           , sep='\t', encoding='utf-8')
     print('>>>>>> Result exported: ' + f'{os.getcwd()}\BOW_{column}_{max_features}.tsv')
@@ -156,7 +222,8 @@ def main():
     conn = open_database_connection('postgres')
     amazonjobs_df = fetch_results_to_dataframe(conn, QUERY)
     conn.close()
-    bag_of_words = create_bag_of_words(amazonjobs_df, 'title', 1000)
+    # USER SPECIFIED PARAMETERS / REQUIRES INPUT
+    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings', 1000, exclude=False)
     print(bag_of_words.head(20))
     print(">>>>>> Executed in %s seconds" % (datetime.now() - script_start_time))
 
