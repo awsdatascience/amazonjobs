@@ -85,7 +85,7 @@ def open_database_connection(database):
     '''
     conn = None
     if database == 'postgres':
-        dbname, user, host, password = 'postgres', 'postgres', 'localhost', 'postgres'
+        dbname, user, host, password = 'postgres', 'postgres', 'localhost', '123'
     else:
         print("No database selected")
     try:
@@ -153,31 +153,31 @@ def create_bag_of_words(dataset, column, max_features, exclude):
         '''
         list_of_words_rules_applied = list_of_words
         if exclude:
-            if WORD_ACTIONS.loc[
-                WORD_ACTIONS['column_name'] == column, ['exclude_words']].empty:
+            if not WORD_ACTIONS.loc[
+                WORD_ACTIONS['column_name'] == column, ['exclude_words']].values[0][0]:
                 pass
             else:
                 words_excluded = WORD_ACTIONS.loc[WORD_ACTIONS['column_name'] == column, ['exclude_words']
-                ].values.tolist()[0][0]
+                ].values[0][0]
                 list_of_words_rules_applied = [word for word in list_of_words if not word in set(words_excluded)]
         else:
-            if WORD_ACTIONS.loc[
-                WORD_ACTIONS['column_name'] == column, ['include_only_words']].empty:
+            if not WORD_ACTIONS.loc[
+                WORD_ACTIONS['column_name'] == column, ['include_only_words']].values[0][0]:
                 pass
             else:
                 words_included = WORD_ACTIONS.loc[WORD_ACTIONS['column_name'] == column, ['include_only_words']
-                ].values.tolist()[0][0]
+                ].values[0][0]
                 list_of_words_rules_applied = [word for word in list_of_words if word in set(words_included)]
         return list_of_words_rules_applied
 
     def replace_string(row):
         string_replaced = row
-        if WORD_ACTIONS.loc[
-            WORD_ACTIONS['column_name'] == column, ['replace_string']].empty:
+        if not WORD_ACTIONS.loc[
+            WORD_ACTIONS['column_name'] == column, ['replace_string']].values[0][0]:
             pass
         else:
             list_of_words_to_merge = WORD_ACTIONS.loc[
-                WORD_ACTIONS['column_name'] == column, ['replace_string']].values.tolist()[0][0]
+                WORD_ACTIONS['column_name'] == column, ['replace_string']].values[0][0]
             for word in list_of_words_to_merge:
                 merged = word.replace(' ', '')
                 string_replaced = string_replaced.replace(word, merged)
@@ -223,7 +223,7 @@ def main():
     amazonjobs_df = fetch_results_to_dataframe(conn, QUERY)
     conn.close()
     # USER SPECIFIED PARAMETERS / REQUIRES INPUT
-    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings', 1000, exclude=False)
+    bag_of_words = create_bag_of_words(amazonjobs_df, 'listings', 10, exclude=False)
     print(bag_of_words.head(20))
     print(">>>>>> Executed in %s seconds" % (datetime.now() - script_start_time))
 
