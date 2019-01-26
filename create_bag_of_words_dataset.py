@@ -1,6 +1,6 @@
 '''
 This module gets amazonjobs data from a local postgres database
-and creates a bug of words.
+and creates a bag of words.
 Python 3.7.1 (default, Oct 23 2018, 22:56:47) [MSC v.1912 64 bit (AMD64)] on win32
 import sys
 sys.path.extend(
