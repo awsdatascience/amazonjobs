@@ -1,5 +1,3 @@
-# K-Means Clustering
-
 # Importing the libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -8,13 +6,12 @@ from sklearn.cluster import KMeans
 
 # Importing the dataset
 dataset = pd.read_csv(
-        'C:\\Users\\vn689xm\\BOW_title_1000.tsv'
+        '~\\BOW_title_1000.tsv'
         , sep = '\t'
         , encoding='utf-8'
         )
 X = dataset.iloc[:, 11:263].values
-#X_columns = dataset.iloc[:, [11, 12]].columns
-
+####################################################
 # Kmeans
 # Using the elbow method to find the optimal number of clusters
 wcss = []
@@ -31,13 +28,13 @@ plt.show()
 # Fitting K-Means to the dataset
 kmeans = KMeans(n_clusters = 12, init = 'k-means++', random_state = 42)
 y_data = kmeans.fit_predict(X)
-
+####################################################
 # HC
 # Using the dendrogram to find the optimal number of clusters
 import scipy.cluster.hierarchy as sch
 dendrogram = sch.dendrogram(sch.linkage(X, method = 'ward'))
 plt.title('Dendrogram')
-plt.xlabel('Customers')
+plt.xlabel('BOW')
 plt.ylabel('Euclidean distances')
 plt.show()
 
@@ -45,7 +42,7 @@ plt.show()
 from sklearn.cluster import AgglomerativeClustering
 hc = AgglomerativeClustering(n_clusters = 8, affinity = 'euclidean', linkage = 'ward')
 y_data = hc.fit_predict(X)
-
+####################################################
 # Add clusters to initial dataset
 clusters = np.asarray(y_data)
 dataset['cluster'] = clusters
